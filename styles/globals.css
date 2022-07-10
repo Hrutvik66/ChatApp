@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
+  /* width */
+  ::-webkit-scrollbar {
+    width: 0.2rem;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px black;
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #f0f0f0;
+    border-radius: 10px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ;
+  }
+}
+
+@layer components {
+  .input {
+    @apply w-60 rounded-md bg-white p-2 py-3 text-sm text-black placeholder:text-gray-500 focus:placeholder-transparent focus:outline-none  focus:ring focus:ring-gray-400;
+  }
+}
