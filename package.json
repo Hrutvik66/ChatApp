@@ -6,25 +6,26 @@
     "start": "next start"
   },
   "dependencies": {
-    "@heroicons/react": "^1.0.5",
-    "emoji-picker-react": "^3.5.1",
-    "firebase": "^9.6.6",
-    "moment": "^2.29.1",
+    "@heroicons/react": "^2.0.6",
+    "emoji-picker-react": "^3.6.1",
+    "firebase": "^9.9.3",
+    "moment": "^2.29.4",
     "next": "latest",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-firebase-hooks": "^5.0.2",
-    "react-toastify": "^8.1.1",
-    "recoil": "^0.6.1",
-    "timeago-react": "^3.0.4"
+    "npm-check-updates": "^16.0.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-firebase-hooks": "^5.0.3",
+    "react-toastify": "^9.0.8",
+    "recoil": "^0.7.5",
+    "timeago-react": "^3.0.5"
   },
   "devDependencies": {
-    "@types/node": "17.0.4",
-    "@types/react": "17.0.38",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.5",
-    "prettier": "^2.5.1",
-    "prettier-plugin-tailwindcss": "^0.1.1",
-    "tailwindcss": "^3.0.7"
+    "@types/node": "18.7.13",
+    "@types/react": "18.0.17",
+    "autoprefixer": "^10.4.8",
+    "postcss": "^8.4.16",
+    "prettier": "^2.7.1",
+    "prettier-plugin-tailwindcss": "^0.1.13",
+    "tailwindcss": "^3.1.8"
   }
 }

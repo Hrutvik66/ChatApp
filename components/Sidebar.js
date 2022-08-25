@@ -2,11 +2,11 @@
 import { useEffect, useState } from 'react';
 //Heroicons
 import {
-  DotsVerticalIcon,
-  FlagIcon,
-  SearchIcon,
-} from '@heroicons/react/outline';
-import { ChatIcon } from '@heroicons/react/solid';
+  EllipsisVerticalIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
+
+import { ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/solid';
 //Firebase
 import {
   auth,
@@ -17,35 +17,55 @@ import {
   where,
   setDoc,
   getDocs,
+  getDoc
 } from '../lib/firebase';
 //React-firebase
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useCollection } from 'react-firebase-hooks/firestore';
 //Components
 import Friends from './Friends';
 //Toastify
-import { toast } from 'react-toastify';
+import { toast,ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useRouter } from 'next/router';
-toast.configure();
+import router from 'next/router';
+import Image from 'next/image';
+//Profile
+import Profile from '../public/Profile.png';
+//lib
+import getRecipientUser from '../lib/getRecipientUser';
 
 const Sidebar = () => {
   const [user] = useAuthState(auth);
   const [searchedUserInfo, setSearchedUserInfo] = useState([]);
-  const Router = useRouter();
-  const useChatRef = query(
-    collection(db, 'chats'),
-    where('users', 'array-contains', user?.email)
-  );
-  const [chatSnapshot] = useCollection(useChatRef);
+  const [chats, setChats] = useState([]);
 
-  useEffect(() => { }, [chatSnapshot]);
   
-  if (!user) {
-    Router.push('/');
-  }
+  useEffect(() => {
+    const getChats = async () => {
+      if (user) {
+        const chatRef = collection(db, 'chats');
+        const q = query(chatRef, where('users', 'array-contains', user?.email));
+        const querySnapshot = await getDocs(q);
 
-  const createChat = () => {
+        const data = [
+          ...new Set(
+            querySnapshot?.docs?.map((doc) => {
+              return {
+                id: doc.id,
+                ...doc.data(),
+              };
+            })
+          ),
+        ];
+        setChats(data);
+      } else {
+        router.push('/Login')
+      }
+    };
+    getChats();
+  }, [user]);
+  
+
+  const createChat = async () => {
     const input = prompt(
       'Please enter a email address of user to chat with user'
     );
@@ -62,68 +82,70 @@ const Sidebar = () => {
     };
     const checkEmail = () => {
       if (!isEmailValid(input)) {
+        toast.error("Invalid Email");
         return false;
       }
       return true;
     };
 
     //Chat already exist between users
-    const chatAlreadyExist = (recepientEmail) =>
-      !!chatSnapshot?.docs.find(
-        (chat) =>
-          chat.data().users.find((user) => user === recepientEmail)?.length > 0
-      );
-    // ! isUser exist in database Error
-    const isUserExist = async () => {
-      const q = query(collection(db, 'users'), where('email', '==', input));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        setSearchedUserInfo([doc.data()]);
-      });
-    };
-    //new chat
-    const newChat = async () => {
-      const newChatRef = doc(collection(db, 'chats'));
-
-      await setDoc(newChatRef, {
-        users: [user.email, input],
-      });
-    };
-    //checking of all conditions
-    if (checkEmail()) {
-      if (searchedUserInfo[0]?.email === input) {
-        if (!chatAlreadyExist(input)) {
-          newChat();
-        } else {
-          toast.error('Chat already exist :)');
+    const isChatExist = () => {
+      for (var i = 0; i < chats.length; i++){
+        const receiver = getRecipientUser(chats[i].users, user);
+        if (input === receiver) {
+          return true;
         }
+      }
+      return false;
+    };
+    // ! isUser exist in database Error
+    const isUserExists = async () => {
+      const ref = doc(db, "users",input);
+      const userRef = await getDoc(ref);
+      if (!userRef.exists) {
+        toast.error("User does not exist");
+        return false;
+      } else return true;
+    };
+    
+    //checking of all conditions
+
+    if (checkEmail() && isUserExists()) {
+      if (isChatExist()) {
+        toast.error("Chat already exist.");
       } else {
-        toast.error('No such user exist :(');
+        const newChatRef = doc(collection(db, "chats"));
+        await setDoc(newChatRef, {
+          users: [user?.email, input],
+        });
+        toast.success("Chat created successfully 🎉");
       }
     } else {
-      toast.error('Invalid Email :(');
+      toast.error("User not exist on application.");
     }
   };
 
   return (
-    <div className="space-y-5 p-3 bg-slate-200 h-screen">
+    <div className="h-screen space-y-5 bg-slate-200 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <img
-          src={user.photoURL}
+        <Image
+          src={user ? user?.photoURL : Profile}
           alt="Profile-image"
-          className="h-10 w-10 cursor-pointer rounded-full hover:opacity-50"
+          className="cursor-pointer rounded-full hover:opacity-50"
+          width={40}
+          height = {40}
           onClick={() => {
             auth.signOut();
-            Router.push('/');
+            router.push('/');
           }}
         />
         <div className="flex items-center space-x-4 text-gray-700">
-          <ChatIcon
+          <ChatBubbleOvalLeftEllipsisIcon
             className="h-9 w-9 cursor-pointer rounded-full p-1 transition duration-500 ease-in-out  hover:bg-white hover:shadow-2xl"
             onClick={createChat}
           />
-          <DotsVerticalIcon className="h-7 w-7 cursor-pointer rounded-full p-1 transition duration-500 ease-in-out hover:bg-white hover:shadow-2xl" />
+          <EllipsisVerticalIcon className="h-7 w-7 cursor-pointer rounded-full p-1 transition duration-500 ease-in-out hover:bg-white hover:shadow-2xl" />
         </div>
       </div>
       {/* SearchBar */}
@@ -134,7 +156,7 @@ const Sidebar = () => {
               type="submit"
               className="focus:shadow-outline focus:outline-none"
             >
-              <SearchIcon className="h-11 w-11 rounded-lg p-2 transition duration-500 ease-in-out hover:scale-125 hover:text-red-500" />
+              <MagnifyingGlassIcon className="h-11 w-11 rounded-lg p-2 transition duration-500 ease-in-out hover:scale-125 hover:text-red-500" />
             </button>
           </span>
           <input
@@ -147,12 +169,13 @@ const Sidebar = () => {
       </div>
       {/* List of friends */}
       <div className=" rounded-lg bg-white">
-        {chatSnapshot?.docs.map((chat) => {
+        {chats?.map((chat) => {
           return (
-            <Friends key={chat.id} id={chat.id} users={chat.data().users} />
+            <Friends key={chat.id} id={chat.id} users={chat.users} />
           );
         })}
       </div>
+      <ToastContainer/>
     </div>
   );
 };

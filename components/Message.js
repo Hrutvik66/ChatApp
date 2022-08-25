@@ -1,11 +1,11 @@
-import { TrashIcon } from '@heroicons/react/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import moment from 'moment';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, doc, deleteDoc } from '../lib/firebase';
 
 const Message = ({ user, message}) => {
   const [LoggedInUser] = useAuthState(auth);
-  const userType = user === LoggedInUser.email ? 'sender' : 'receiver';
+  const userType = user === LoggedInUser?.email ? 'sender' : 'receiver';
   // const Trash = async (id) => {
   //   await deleteDoc(doc(ref, 'messages', id));
   // };

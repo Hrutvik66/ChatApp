@@ -64,7 +64,7 @@ const Home = () => {
               Try Web Free
             </button>
           </div>
-          <Image src="/Chat app image.png" alt="me" height={500} width={400} />
+          <Image src="/Chat app image.png" alt="me" height={450} width={400} />
         </div>
       </main>
     </div>
