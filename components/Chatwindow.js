@@ -38,10 +38,6 @@ const Chatwindow = ({ email, messages }) => {
   const endOfMessageRef = useRef(null);
   const Router = useRouter();
 
-  if (!user) {
-    Router.push("/Login");
-  }
-
   const ref = doc(db, "chats", Router.query.id);
   const messagesRef = query(
     collection(ref, "messages"),
